@@ -46,8 +46,8 @@ public class Patron : MonoBehaviour
             Building building = target.gameObject.GetComponentInParent<Building>();
             
             if(building) {
-                Patron self = gameObject.GetComponent<Patron>();
-                building.AddToQueue( self );
+                //Patron self = gameObject.GetComponent<Patron>();
+                building.AddToQueue( this );
                 target = null;
                 // stop walking
                 //

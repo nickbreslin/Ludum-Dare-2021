@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class Director : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public static Director instance;
+    public GUIManager guiManager;
+    public BuildingManager buildingManager;
+    public IncomeManager incomeManager;
+    public AlertManager alertManager;
 
-    // Update is called once per frame
-    void Update()
+    // Start is called before the first frame update
+    void Awake()
     {
-        
+        instance = this;
     }
 }

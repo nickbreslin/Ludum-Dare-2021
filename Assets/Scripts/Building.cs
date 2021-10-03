@@ -13,25 +13,54 @@ public class Building : MonoBehaviour
     private List<Patron> queue = new List<Patron>();
     private List<Patron> riders = new List<Patron>();
     public int rideLength; // Seconds
-    public int maxRiders; //
+    public int maxRiders = 1; //
     [HideInInspector]
     public Transform queueStart;
     private float queueDistance = 1f;
-    // Start is called before the first frame update
+    public int incomePerRide = 5;
+    
+    public int degradeAmount = 1; // Health
+    private float degradeDelay = 1f; // Seconds
 
     void Awake() {
         queueStart = transform.Find("Queue");
+        //repair = transform.Find("Queue");
+    }
+
+    void OnMouseDown() {
+        Debug.Log(gameObject.name + " clicked");
+        Director.instance.guiManager.SetActionTarget(transform);
+    }
+
+    public bool NeedsRepair() {
+
+        return currentHealth == startingHealth;
+    }
+
+    public bool DoRepair(int amt) {
+        currentHealth += amt;
+
+        if(currentHealth >= startingHealth)  { // todo, implement maxhealth
+        Debug.Log("DONE!!!");
+            currentHealth = startingHealth;
+            return false;
+        }
+
+        Debug.Log("Not Yet!");
+
+        return true;
+
     }
     
-    IEnumerator Start()
+    void Start()
     {
         currentHealth = startingHealth;
         textName.text = gameObject.name;
 
         
+        StartCoroutine(DegradeLoop());
+        StartCoroutine(RideLoop());
         
-
-        yield return StartCoroutine(RideLoop());
     }
 
     // Update is called once per frame
@@ -40,6 +69,14 @@ public class Building : MonoBehaviour
         textHealth.text = "Health: " + currentHealth.ToString() + " / " + startingHealth.ToString();
         textRiders.text = "Riders: " + riders.Count + " / " + maxRiders.ToString();
         textQueue.text = "Queue: " + queue.Count.ToString();
+    }
+
+    IEnumerator DegradeLoop() {
+
+        while(true) {
+            RemoveHealth(degradeAmount);
+            yield return new WaitForSeconds(degradeDelay);
+        }
     }
 
     IEnumerator RideLoop() {
@@ -52,7 +89,7 @@ public class Building : MonoBehaviour
             } else {
                 LoadRiders();
                 yield return new WaitForSeconds(rideLength);
-                RemoveHealth();
+                RemoveHealth(riders.Count);
                 UnloadRiders();
                 yield return new WaitForSeconds(1);
             }
@@ -73,6 +110,10 @@ public class Building : MonoBehaviour
             // No Queue!
             if(queue.Count == 0) {
                 break;
+            }
+
+            if(incomePerRide > 0) {
+                Director.instance.incomeManager.AddIncome(incomePerRide);
             }
 
             Patron patron = queue[0];
@@ -99,9 +140,9 @@ public class Building : MonoBehaviour
         }
     }
 
-    void RemoveHealth() { 
+    void RemoveHealth(int amount) { 
 
-        currentHealth -= riders.Count;
+        currentHealth -= amount;
 
         if(currentHealth < 0) {
             currentHealth = 0;
