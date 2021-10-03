@@ -14,11 +14,21 @@ public class Building : MonoBehaviour
     private List<Patron> riders = new List<Patron>();
     public int rideLength; // Seconds
     public int maxRiders; //
+    [HideInInspector]
+    public Transform queueStart;
+    private float queueDistance = 1f;
     // Start is called before the first frame update
+
+    void Awake() {
+        queueStart = transform.Find("Queue");
+    }
+    
     IEnumerator Start()
     {
         currentHealth = startingHealth;
         textName.text = gameObject.name;
+
+        
         
 
         yield return StartCoroutine(RideLoop());
@@ -44,6 +54,7 @@ public class Building : MonoBehaviour
                 yield return new WaitForSeconds(rideLength);
                 RemoveHealth();
                 UnloadRiders();
+                yield return new WaitForSeconds(1);
             }
         }
     }
@@ -51,6 +62,8 @@ public class Building : MonoBehaviour
     public void AddToQueue( Patron patron ) {
 
         queue.Add( patron );
+        float move = -queueDistance * queue.Count;
+        patron.transform.Translate(new Vector3(0,0, move ));
     }
 
     void LoadRiders() { 
@@ -65,6 +78,24 @@ public class Building : MonoBehaviour
             Patron patron = queue[0];
             queue.RemoveAt(0);
             riders.Add(patron);
+
+            shiftRiders();
+            shiftQueue();
+        }
+    }
+
+    void shiftRiders() {
+        // todo - move to specific transforms.
+        foreach(Patron patron in riders) {
+            patron.transform.Translate(new Vector3(queueDistance, 0, 0));
+
+        }
+    }
+
+    void shiftQueue() {
+        foreach(Patron patron in queue) {
+            patron.transform.Translate(new Vector3(0,0, queueDistance ));
+
         }
     }
 

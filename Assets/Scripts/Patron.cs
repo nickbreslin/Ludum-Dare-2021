@@ -9,6 +9,7 @@ public class Patron : MonoBehaviour
     public Transform target;
     public float speed;
 
+    
     void Start()
     {
         //Get all destinations.
@@ -17,7 +18,8 @@ public class Patron : MonoBehaviour
         buildings = reshuffle(buildings);
 
         foreach( GameObject building in buildings) {
-            destinations.Add(building);
+            Building b = building.gameObject.GetComponent<Building>();
+            destinations.Add(b.queueStart.gameObject);
         }
 
         /* Add Spawn as final destination */
@@ -40,7 +42,8 @@ public class Patron : MonoBehaviour
         // Check if the position of the cube and sphere are approximately equal.
         if (Vector3.Distance(transform.position, target.position) < 0.001f)
         {
-            Building building = target.gameObject.GetComponent<Building>();
+
+            Building building = target.gameObject.GetComponentInParent<Building>();
             
             if(building) {
                 Patron self = gameObject.GetComponent<Patron>();
